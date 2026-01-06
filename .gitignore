@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignore any folder named `data/` within folders names `week*`
+/week*/data/
