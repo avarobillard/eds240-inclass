@@ -1,0 +1,45 @@
+---
+title: "week1-lab"
+author: "Ava Robillard"
+date: 1/8/26
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(lubridate)
+```
+
+```{r}
+bees <- read_csv(here::here("week1", "data", "stressor.csv")) 
+```
+
+```{r}
+bees_clean <- bees %>% 
+  mutate(state = str_remove_all(bees$state, "[!@#$%^&*().+-/_]")) %>% 
+  mutate(stressor = str_remove_all(bees$stressor, "[!@#$%^&*().+-/_]")) %>% 
+  clean_names() %>% 
+  pivot_longer(january_march:october_december, names_to = "months", values_to = "colonies") %>% 
+  mutate(quarter = case_when(
+    (months == 'january_march') ~ 1,
+    (months == 'april_june') ~ 2,
+    (months == 'july_september') ~ 3,
+    (months == 'october_december') ~ 4,
+  )) %>% 
+  filter(!(state %in% c("United States", "Other States"))) %>% 
+  filter(state == "Kentucky" & stressor == "Varroa mites") %>% 
+  group_by(year, quarter) %>% 
+  summarize(average = mean(colonies)) 
+```
+
+```{r}
+ggplot(bees_clean, aes(x = year, y = average, color = as.factor(quarter))) +
+  geom_point(size = 3, alpha = 0.7) +
+  scale_color_manual(values = c("darkgoldenrod3", "orange", "firebrick", "deeppink")) +
+  theme_minimal() +
+  labs(x = "Year", y = "Average number of colonies", color = "Quarter", caption = "Average Number of Honey Bee Colonies in Kentucky influenced by Verrosa Mites")
+```
+
+
